@@ -1,0 +1,109 @@
+{
+  "formatVersion": "1.1",
+  "component": {
+    "group": "com.github.junrar",
+    "module": "junrar",
+    "version": "7.5.5",
+    "attributes": {
+      "org.gradle.status": "release"
+    }
+  },
+  "createdBy": {
+    "gradle": {
+      "version": "7.5"
+    }
+  },
+  "variants": [
+    {
+      "name": "apiElements",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.jvm.version": 8,
+        "org.gradle.libraryelements": "jar",
+        "org.gradle.usage": "java-api"
+      },
+      "files": [
+        {
+          "name": "junrar-7.5.5.jar",
+          "url": "junrar-7.5.5.jar",
+          "size": 161628,
+          "sha512": "8ab9945069cfb865e3319b0aef99a676d71ea287babbfdc8c27f94e098316b8d5e03893f2d27c211f72637f9dd72b212589a8e01010a24997e84d5b5245f0036",
+          "sha256": "e01b949687e2a5b4c68011c1702aa5d2cc8e6c458656ac2c91658b69cebb1bb3",
+          "sha1": "4b1300aa087b8c4e5e9bbb988e609bbaddfda283",
+          "md5": "c8d3232d2e0b6708cfaa66f376c511b5"
+        }
+      ]
+    },
+    {
+      "name": "runtimeElements",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.jvm.version": 8,
+        "org.gradle.libraryelements": "jar",
+        "org.gradle.usage": "java-runtime"
+      },
+      "dependencies": [
+        {
+          "group": "org.slf4j",
+          "module": "slf4j-api",
+          "version": {
+            "requires": "1.7.36"
+          }
+        }
+      ],
+      "files": [
+        {
+          "name": "junrar-7.5.5.jar",
+          "url": "junrar-7.5.5.jar",
+          "size": 161628,
+          "sha512": "8ab9945069cfb865e3319b0aef99a676d71ea287babbfdc8c27f94e098316b8d5e03893f2d27c211f72637f9dd72b212589a8e01010a24997e84d5b5245f0036",
+          "sha256": "e01b949687e2a5b4c68011c1702aa5d2cc8e6c458656ac2c91658b69cebb1bb3",
+          "sha1": "4b1300aa087b8c4e5e9bbb988e609bbaddfda283",
+          "md5": "c8d3232d2e0b6708cfaa66f376c511b5"
+        }
+      ]
+    },
+    {
+      "name": "javadocElements",
+      "attributes": {
+        "org.gradle.category": "documentation",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.docstype": "javadoc",
+        "org.gradle.usage": "java-runtime"
+      },
+      "files": [
+        {
+          "name": "junrar-7.5.5-javadoc.jar",
+          "url": "junrar-7.5.5-javadoc.jar",
+          "size": 448925,
+          "sha512": "201887fa26a2ee09f029dba0a119540f7fabe0f734284567fbc366d5f5181e093bd901626227bef9350bed7ef927d362e4c0cd0ffdce5ab79006eb5b247696cd",
+          "sha256": "104479194b35cad0f79d5dc91f2a51ab21ffc5b5be18cb069d099e2634d7697b",
+          "sha1": "31b78fdcef99f9092817743ba33c0c6edfa68a1f",
+          "md5": "2a59685255e6102f620f5089001c79b5"
+        }
+      ]
+    },
+    {
+      "name": "sourcesElements",
+      "attributes": {
+        "org.gradle.category": "documentation",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.docstype": "sources",
+        "org.gradle.usage": "java-runtime"
+      },
+      "files": [
+        {
+          "name": "junrar-7.5.5-sources.jar",
+          "url": "junrar-7.5.5-sources.jar",
+          "size": 121867,
+          "sha512": "4a43dbddac543f59084d9fa2a7831e907305055f19a49a9ebb8269dd85742d91e2d08aa1127a0b2417c724dcbf57d3e3318607f1d4cb27949f7f8f41f2bf8a2f",
+          "sha256": "be07759d30e0216dcb8f3abba2388b6991694cea934fd3bb386ad7cc18898a19",
+          "sha1": "1ff2d3c7510ee958ed83dafa69f9f0b462d63507",
+          "md5": "b925696c584a53ac6c301e45040ae2e4"
+        }
+      ]
+    }
+  ]
+}

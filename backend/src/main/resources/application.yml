@@ -1,0 +1,25 @@
+spring:
+  config:
+    import: "optional:file:.env[.properties]"
+  datasource:
+    url: jdbc:postgresql://localhost:5432/rag
+    username: rag
+    password: rag
+  jpa:
+    hibernate:
+      ddl-auto: update
+    open-in-view: false
+
+app:
+  llm:
+    enabled: ${APP_LLM_ENABLED:true}
+
+langchain4j:
+  google-ai-gemini:
+    chat-model:
+      api-key: ${GEMINI_AI_KEY:}
+      model-name: ${GEMINI_CHAT_MODEL:gemini-2.5-flash}
+    embedding-model:
+      api-key: ${GEMINI_AI_KEY:}
+      model-name: ${GEMINI_EMBEDDING_MODEL:text-embedding-004}
+      output-dimensionality: 1536

@@ -1,0 +1,45 @@
+# 이력서 기반 채용 공고 추천 시스템 구현 계획
+
+이 프로젝트는 사용자가 업로드한 이력서(PDF)를 분석하고, 벡터 데이터베이스(PGVector)에 저장된 채용 공고와 비교하여 가장 적합한 공고를 추천하는 시스템입니다.
+
+## 핵심 아키텍처
+
+- **Backend**: Spring Boot 3.x (현재 프로젝트 구조)
+- **AI Framework**: LangChain4j (Java용 LangChain)
+- **Vector DB**: PostgreSQL + pgvector (docker-compose 설정 기반)
+- **Embedding/LLM**: OpenAI 또는 Ollama (사용자 선택 필요)
+
+## 제안하는 구현 단계
+
+### 1단계: 의존성 및 설정 추가
+- [build.gradle](file:///c:/project/publicDocsRag/backend/build.gradle)에 LangChain4j 관련 의존성 추가 (langchain4j-open-ai, langchain4j-pgvector 등)
+- `application.yml`에 데이터베이스 및 LLM API 키 설정
+
+### 2단계: 데이터 파싱 및 임베딩
+#### [NEW] [ResumeService.java](file:///c:/project/publicDocsRag/backend/src/main/java/com/example/backend/service/ResumeService.java)
+- PDF 파일에서 텍스트 추출 (Apache Tika 또는 LangChain4j Document Loader 사용)
+- 추출된 텍스트를 LLM을 이용해 정형화된 데이터로 변환
+
+#### [NEW] [JobPostingService.java](file:///c:/project/publicDocsRag/backend/src/main/java/com/example/backend/service/JobPostingService.java)
+- 채용 공고 데이터를 벡터화하여 PGVector에 저장하는 로직 구현
+
+### 3단계: 추천 엔진 구현
+#### [NEW] [RecommendationService.java](file:///c:/project/publicDocsRag/backend/src/main/java/com/example/backend/service/RecommendationService.java)
+- 이력서 임베딩 값을 기준으로 PGVector에서 유사한 채용 공고 검색 (Similarity Search)
+- 검색된 결과들을 LLM에 전달하여 "왜 추천하는지"에 대한 이유와 함께 최종 결과 생성
+
+### 4단계: API 엔드포인트 개발
+#### [NEW] [RecommendationController.java](file:///c:/project/publicDocsRag/backend/src/main/java/com/example/backend/controller/RecommendationController.java)
+- 이력서 업로드 `/api/recommend/upload`
+- 추천 결과 조회 `/api/recommend/jobs`
+
+## 검증 계획
+
+### 자동화 테스트
+- `JobPostingServiceTest`: 채용 공고가 벡터 DB에 정상 임베딩되는지 확인
+- `RecommendationServiceTest`: 특정 키워드가 포함된 이력서에 대해 관련 공고가 검색되는지 확인
+
+### 수동 검증
+1. `docker-compose up -d`로 PGVector 실행
+2. 샘플 채용 공고 데이터 삽입
+3. PDF 이력서를 Postman/Swagger로 업로드하여 추천 결과 확인
