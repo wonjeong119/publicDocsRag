@@ -212,7 +212,6 @@ const AnalyzePage: React.FC = () => {
                     {submitError && <p className="analyze-submit-error">{submitError}</p>}
                     <AnalyzeRawResponse response={analyzeRawResponse} />
                 </div>
-
                 <div className="analyze-steps">
                     <p className="analyze-steps-title">분석 진행 단계</p>
                     <div className="analyze-steps-grid">
