@@ -35,12 +35,25 @@ public class RecommendationService {
 
         // 2. LLM을 이용한 분석 및 추천 메시지 생성
         String prompt = String.format(
-                "당신은 전문 채용 담당자이자 커리어 컨설턴트입니다. 아래의 [이력서]와 [채용 공고]를 심층 비로그 분석하여 피드백을 주세요.\n\n" +
-                        "분석 내용에는 다음이 포함되어야 합니다:\n" +
-                        "1. **매칭 점수**: 0점부터 100점 사이로 평가\n" +
-                        "2. **강점**: 이력서에서 해당 공고의 요구사항에 잘 부합하는 부분\n" +
-                        "3. **보완점**: 공고의 요구사항 중 부족한 부분이나 강조하면 좋을 경험\n" +
-                        "4. **합격 전략**: 면접이나 서류 전형에서 강조해야 할 핵심 포인트\n\n" +
+                "당신은 전문 채용 담당자이자 커리어 컨설턴트입니다. 아래의 [이력서]와 [채용 공고]를 심층 분석하여 JSON 형식으로 피드백을 주세요.\n\n" +
+                        "반드시 아래의 JSON 구조를 지켜야 하며, 다른 텍스트 없이 JSON만 응답하세요:\n" +
+                        "{\n" +
+                        "  \"matchScore\": 숫자 (0-100),\n" +
+                        "  \"heroTitle\": \"[지원서 제목]\",\n" +
+                        "  \"heroName\": \"[지원자 이름]\",\n" +
+                        "  \"heroDescriptionShort\": \"짧은 강조 설명\",\n" +
+                        "  \"heroDescriptionLong\": \"상세 요약 설명\",\n" +
+                        "  \"strengths\": [\n" +
+                        "    { \"title\": \"강점 제목\", \"description\": \"강점 상세 설명\", \"fullWidth\": true/false }\n" +
+                        "  ],\n" +
+                        "  \"improvements\": [\n" +
+                        "    { \"title\": \"보완점 제목\", \"description\": \"보완점 상세 설명\" }\n" +
+                        "  ],\n" +
+                        "  \"strategies\": [\n" +
+                        "    { \"title\": \"전략 제목\", \"bullets\": [\"포인트1\", \"포인트2\"], \"quote\": \"인용구\", \"paragraph\": \"설명\" }\n"
+                        +
+                        "  ]\n" +
+                        "}\n\n" +
                         "[이력서 내용]\n%s\n\n" +
                         "--------------------------\n\n" +
                         "[채용 공고 내용 (URL: %s)]\n%s\n",
@@ -49,14 +62,21 @@ public class RecommendationService {
                 jobDescription);
 
         if (!llmEnabled || chatApiKey.isEmpty() || chatModel == null) {
-            return "LLM is disabled or API key is missing. " +
-                    "Set APP_LLM_ENABLED=true and GEMINI_AI_KEY to enable analysis.";
+            return "{\"error\": \"LLM is disabled or API key is missing.\"}";
         }
 
         try {
-            return chatModel.chat(prompt);
+            String response = chatModel.chat(prompt);
+            if (response.contains("```json")) {
+                response = response.substring(response.indexOf("```json") + 7);
+                response = response.substring(0, response.lastIndexOf("```"));
+            } else if (response.contains("```")) {
+                response = response.substring(response.indexOf("```") + 3);
+                response = response.substring(0, response.lastIndexOf("```"));
+            }
+            return response.trim();
         } catch (RuntimeException e) {
-            return "LLM request failed: " + e.getMessage();
+            return "{\"error\": \"LLM request failed: " + e.getMessage() + "\"}";
         }
     }
 }

@@ -1,0 +1,205 @@
+﻿@reference "../index.css";
+
+@layer utilities {
+    .analyze-page {
+        @apply relative flex min-h-screen w-full flex-col bg-background-light font-display text-deep-charcoal antialiased dark:bg-background-dark dark:text-slate-100;
+    }
+
+    .analyze-header {
+        @apply border-b border-slate-200 bg-white px-6 py-4 dark:border-slate-800 dark:bg-slate-900;
+    }
+
+    .analyze-header-inner {
+        @apply mx-auto flex max-w-7xl items-center justify-between;
+    }
+
+    .analyze-brand {
+        @apply flex items-center gap-4;
+    }
+
+    .analyze-brand-icon {
+        @apply text-3xl text-primary;
+    }
+
+    .analyze-brand-title {
+        @apply text-xl font-extrabold tracking-tight text-deep-charcoal dark:text-white;
+    }
+
+    .analyze-main {
+        @apply flex flex-1 flex-col items-center justify-center px-6 py-12;
+    }
+
+    .analyze-intro {
+        @apply mb-12 w-full max-w-4xl text-center;
+    }
+
+    .analyze-intro-title {
+        @apply mb-4 text-4xl font-black tracking-tight text-deep-charcoal dark:text-white;
+    }
+
+    .analyze-intro-desc {
+        @apply break-keep text-lg text-slate-600 dark:text-slate-400;
+    }
+
+    .analyze-form-grid {
+        @apply mb-12 grid w-full max-w-5xl gap-8 md:grid-cols-2;
+    }
+
+    .analyze-card {
+        @apply flex flex-col;
+    }
+
+    .input-card {
+        @apply rounded-2xl border border-slate-200 bg-white p-8 transition-all hover:shadow-lg dark:border-slate-800 dark:bg-slate-900;
+    }
+
+    .input-card-head {
+        @apply mb-6 flex items-center gap-3;
+    }
+
+    .input-card-icon {
+        @apply text-primary;
+    }
+
+    .input-card-title {
+        @apply text-xl font-bold text-deep-charcoal dark:text-white;
+    }
+
+    .drop-zone {
+        @apply cursor-pointer rounded-xl border-2 border-dashed border-slate-300 bg-slate-50 px-6 py-12 transition-all hover:border-primary hover:bg-emerald-50 dark:border-slate-700 dark:bg-slate-800/50 dark:hover:bg-emerald-900/10;
+    }
+
+    .analyze-drop-zone {
+        @apply flex flex-1 flex-col items-center justify-center;
+    }
+
+    .drop-zone-icon {
+        @apply mb-4 text-4xl text-slate-400;
+    }
+
+    .drop-zone-title {
+        @apply mb-1 text-sm font-bold text-slate-700 dark:text-slate-200;
+    }
+
+    .drop-zone-subtitle {
+        @apply text-xs text-slate-500;
+    }
+
+    .drop-zone-button {
+        @apply mt-6 rounded-lg border border-emerald-100 bg-emerald-50 px-4 py-2 text-sm font-bold text-primary transition-colors hover:bg-emerald-100 dark:border-emerald-800/50 dark:bg-emerald-900/20 dark:hover:bg-emerald-900/30;
+    }
+
+    .sr-only-file-input {
+        @apply hidden;
+    }
+
+    .drop-zone-file-name {
+        @apply mt-4 break-all text-xs font-semibold text-primary;
+    }
+
+    .drop-zone-clear-button {
+        @apply mt-3 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-600 transition-colors hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700;
+    }
+
+    .drop-zone-file-error {
+        @apply mt-4 text-xs font-semibold text-red-500;
+    }
+
+    .job-field {
+        @apply flex flex-1 flex-col justify-center;
+    }
+
+    .job-field-label {
+        @apply mb-3 block text-sm font-semibold text-slate-700 dark:text-slate-300;
+    }
+
+    .job-field-input-wrap {
+        @apply relative;
+    }
+
+    .job-field-input {
+        @apply h-14 w-full rounded-xl border border-slate-200 pl-4 pr-12 text-sm font-medium focus:border-primary focus:ring-primary dark:border-slate-700 dark:bg-slate-800;
+    }
+
+    .job-field-icon {
+        @apply absolute right-4 top-1/2 -translate-y-1/2 text-slate-400;
+    }
+
+    .job-field-help {
+        @apply mt-4 break-keep text-xs leading-relaxed text-slate-500;
+    }
+
+    .analyze-cta-wrap {
+        @apply mb-16 w-full max-w-5xl text-center;
+    }
+
+    .analyze-cta-btn {
+        @apply rounded-2xl bg-primary px-12 py-5 text-lg font-black tracking-tight text-white shadow-xl shadow-emerald-900/20 transition-all hover:scale-[1.02] hover:bg-primary-dark active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:scale-100 disabled:hover:bg-primary;
+    }
+
+    .analyze-submit-error {
+        @apply mt-4 text-sm font-semibold text-red-500;
+    }
+
+    .analyze-response-panel {
+        @apply mx-auto mt-6 w-full max-w-5xl rounded-2xl border border-slate-200 bg-white p-5 text-left shadow-sm dark:border-slate-700 dark:bg-slate-900;
+    }
+
+    .analyze-response-title {
+        @apply mb-3 text-sm font-bold text-slate-700 dark:text-slate-200;
+    }
+
+    .analyze-response-body {
+        @apply max-h-96 overflow-auto whitespace-pre-wrap break-all rounded-xl bg-slate-50 p-4 text-xs leading-relaxed text-slate-700 dark:bg-slate-800 dark:text-slate-200;
+    }
+
+    .analyze-steps {
+        @apply w-full max-w-3xl border-t border-slate-200 pt-12 dark:border-slate-800;
+    }
+
+    .analyze-steps-title {
+        @apply mb-8 text-center text-xs font-black uppercase tracking-widest text-slate-400;
+    }
+
+    .analyze-steps-grid {
+        @apply grid grid-cols-3 gap-4;
+    }
+
+    .step-item {
+        @apply text-center;
+    }
+
+    .step-num {
+        @apply mx-auto mb-3 flex size-10 items-center justify-center rounded-full border border-emerald-100 bg-emerald-50 font-black text-primary dark:border-emerald-800/50 dark:bg-emerald-900/20;
+    }
+
+    .step-title {
+        @apply text-xs font-bold text-deep-charcoal dark:text-slate-300;
+    }
+
+    .step-desc {
+        @apply mt-1 break-keep text-[10px] text-slate-500;
+    }
+
+    .analyze-footer {
+        @apply border-t border-slate-200 bg-white py-8 dark:border-slate-800 dark:bg-slate-900;
+    }
+
+    .analyze-footer-inner {
+        @apply mx-auto max-w-7xl px-6 text-center;
+    }
+
+    .analyze-footer-text {
+        @apply text-xs font-bold uppercase tracking-widest text-slate-400;
+    }
+
+    .analyze-footer-links {
+        @apply mt-4 flex justify-center gap-6;
+    }
+
+    .analyze-footer-link {
+        @apply text-[11px] font-bold text-slate-500 transition-colors hover:text-primary;
+    }
+}
+
+
