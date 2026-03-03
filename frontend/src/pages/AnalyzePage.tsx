@@ -5,6 +5,33 @@ import AnalyzeRawResponse from '../components/AnalyzeRawResponse';
 
 const AnalyzePage: React.FC = () => {
     const navigate = useNavigate();
+
+    const extractGeminiErrorMessage = (errorStr: string): string => {
+        // 1. "message": "..." 또는 \"message\": \"...\" 패턴을 정규표현식으로 찾습니다.
+        // 역슬래시가 있을 수도 없을 수도 있는 점을 고려하여 [\\]? 을 추가합니다.
+        const messageRegex = /[\\]?"message[\\]?":\s*[\\]?"([^\\"]+)[\\]?"/;
+        const match = errorStr.match(messageRegex);
+        if (match && match[1]) {
+            return match[1];
+        }
+
+        // 2. 싱글 쿼테이션 대응
+        const messageRegexAlt = /'message':\s*'([^']+)'/;
+        const matchAlt = errorStr.match(messageRegexAlt);
+        if (matchAlt && matchAlt[1]) {
+            return matchAlt[1];
+        }
+
+        try {
+            const jsonStart = errorStr.indexOf('{');
+            if (jsonStart !== -1) {
+                // ... 생략 (기존 로직 유지 가능하지만 정규식이 더 강력함)
+            }
+        } catch (e) { }
+
+        return errorStr;
+    };
+
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
     const [selectedFileName, setSelectedFileName] = useState('');
@@ -13,6 +40,7 @@ const AnalyzePage: React.FC = () => {
     const [submitError, setSubmitError] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [analyzeRawResponse, setAnalyzeRawResponse] = useState('');
+    const [apiKey, setApiKey] = useState('');
 
     const handleBrowseClick = () => {
         if (selectedFileName) {
@@ -77,6 +105,11 @@ const AnalyzePage: React.FC = () => {
             return;
         }
 
+        if (!apiKey.trim()) {
+            setSubmitError('Gemini API 키를 입력해 주세요. (필수)');
+            return;
+        }
+
         try {
             const parsedUrl = new URL(jobUrl);
             if (parsedUrl.protocol !== 'http:' && parsedUrl.protocol !== 'https:') {
@@ -93,15 +126,21 @@ const AnalyzePage: React.FC = () => {
             const formData = new FormData();
             formData.append('file', selectedFile);
             formData.append('url', jobUrl.trim());
+            if (apiKey.trim()) {
+                formData.append('apiKey', apiKey.trim());
+            }
 
-            const response = await fetch('/api/recommend/analyze', {
+            const apiBase = import.meta.env.VITE_API_BASE_URL || '';
+            const response = await fetch(`${apiBase}/api/recommend/analyze`, {
                 method: 'POST',
                 body: formData,
             });
 
             if (!response.ok) {
                 const errorBody = await response.text();
-                throw new Error(`HTTP ${response.status} ${response.statusText} - ${errorBody}`);
+                const errorMsg = `HTTP ${response.status} - ${errorBody || response.statusText}`;
+                alert(`요청 중 오류가 발생했습니다:\n${errorMsg}`);
+                throw new Error(errorMsg);
             }
 
             const rawBody = await response.text();
@@ -112,8 +151,10 @@ const AnalyzePage: React.FC = () => {
 
             try {
                 const parsedData = JSON.parse(rawBody);
-                if (parsedData.error) {
-                    setSubmitError(`분석 중 오류가 발생했습니다: ${parsedData.error}`);
+                if (parsedData.error || parsedData.message) {
+                    const errorMsg = extractGeminiErrorMessage(parsedData.error || parsedData.message);
+                    alert(`분석 중 오류가 발생했습니다:\n${errorMsg}`);
+                    setSubmitError(`분석 중 오류가 발생했습니다: ${errorMsg}`);
                     return;
                 }
                 // 결과 페이지로 데이터 전달하며 이동
@@ -121,11 +162,23 @@ const AnalyzePage: React.FC = () => {
             } catch (jsonError) {
                 console.error('JSON parsing failed:', jsonError);
                 setAnalyzeRawResponse(rawBody);
-                setSubmitError('분석 결과 형식이 올바르지 않습니다. 원문을 확인해 주세요.');
+                const extractedMsg = extractGeminiErrorMessage(rawBody);
+                const errorMsg = extractedMsg !== rawBody
+                    ? extractedMsg
+                    : '분석 결과 형식이 올바르지 않습니다. 원문을 확인해 주세요.';
+                alert(`분석 중 오류가 발생했습니다:\n${errorMsg}`);
+                setSubmitError(`분석 중 오류가 발생했습니다: ${errorMsg}`);
             }
         } catch (error) {
             console.error('Analyze request failed:', error);
-            setSubmitError(`분석 요청에 실패했습니다. (${String(error)})`);
+            const rawErrorMsg = String(error);
+            const errorMsg = extractGeminiErrorMessage(rawErrorMsg);
+
+            // 이미 alert를 띄운 경우(우리가 직접 띄운 alert들) 외에만 띄움
+            if (!rawErrorMsg.includes('오류가 발생했습니다') && !rawErrorMsg.includes('요청 중 오류')) {
+                alert(`분석 요청 중 예외가 발생했습니다:\n${errorMsg}`);
+            }
+            setSubmitError(`분석 요청에 실패했습니다. (${errorMsg})`);
         } finally {
             setIsSubmitting(false);
         }
@@ -203,6 +256,34 @@ const AnalyzePage: React.FC = () => {
                             </p>
                         </div>
                     </div>
+
+                    <div className="input-card analyze-card">
+                        <div className="input-card-head">
+                            <span className="material-symbols-outlined input-card-icon">key</span>
+                            <h3 className="input-card-title">3. Gemini API 키 (필수)</h3>
+                        </div>
+                        <div className="job-field">
+                            <label className="job-field-label" htmlFor="api-key">
+                                분석에 사용할 자신의 API 키를 입력해 주세요
+                            </label>
+                            <div className="job-field-input-wrap">
+                                <input
+                                    className="job-field-input"
+                                    id="api-key"
+                                    placeholder="Google Gemini API 키"
+                                    type="password"
+                                    value={apiKey}
+                                    onChange={(event) => setApiKey(event.target.value)}
+                                />
+                                <span className="material-symbols-outlined job-field-icon">vpn_key</span>
+                            </div>
+                            <p className="job-field-help">
+                                <strong>AI 버전: gemini-2.5-flash</strong><br />
+                                분석을 위해 API 키 입력이 반드시 필요합니다.
+                                입력하신 키는 서버에 저장되지 않으며 일회성 분석용으로만 사용됩니다.
+                            </p>
+                        </div>
+                    </div>
                 </div>
 
                 <div className="analyze-cta-wrap">
@@ -227,6 +308,11 @@ const AnalyzePage: React.FC = () => {
                         </div>
                         <div className="step-item">
                             <div className="step-num">3</div>
+                            <p className="step-title">API 키 입력</p>
+                            <p className="step-desc">분석에 사용할 Gemini API 키를 입력합니다</p>
+                        </div>
+                        <div className="step-item">
+                            <div className="step-num">4</div>
                             <p className="step-title">리포트 생성</p>
                             <p className="step-desc">AI가 분석한 정보를 리포트로 확인합니다</p>
                         </div>
@@ -236,12 +322,12 @@ const AnalyzePage: React.FC = () => {
 
             <footer className="analyze-footer">
                 <div className="analyze-footer-inner">
-                    <p className="analyze-footer-text">AI 커리어 분석 엔진 v2.4</p>
-                    <div className="analyze-footer-links">
+                    <p className="analyze-footer-text">AI 커리어 분석</p>
+                    {/*<div className="analyze-footer-links">
                         <a className="analyze-footer-link" href="#">개인정보 처리방침</a>
                         <a className="analyze-footer-link" href="#">이용약관</a>
                         <a className="analyze-footer-link" href="#">고객 지원</a>
-                    </div>
+                    </div>*/}
                 </div>
             </footer>
         </div>

@@ -1,11 +1,34 @@
-﻿import React, { useEffect } from 'react';
+﻿import React, { useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import html2pdf from 'html2pdf.js';
 import './ResultPage.css';
 
 const ResultPage: React.FC = () => {
     const navigate = useNavigate();
     const location = useLocation();
-    const handleSaveReport = () => window.print();
+    const reportRef = useRef<HTMLDivElement>(null);
+
+    const handleSaveReport = () => {
+        if (!reportRef.current) return;
+
+        const element = reportRef.current;
+        const heroName = location.state?.resultData?.heroName || '지원자';
+
+        const options = {
+            margin: 10,
+            filename: `${heroName}_AI_분석_리포트.pdf`,
+            image: { type: 'jpeg' as const, quality: 0.98 },
+            html2canvas: {
+                scale: 2,
+                useCORS: true,
+                letterRendering: true,
+                backgroundColor: '#ffffff'
+            },
+            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' as const }
+        };
+
+        html2pdf().set(options).from(element).save();
+    };
 
     const resultData = location.state?.resultData;
 
@@ -42,7 +65,7 @@ const ResultPage: React.FC = () => {
     };
 
     return (
-        <div className="result-page">
+        <div className="result-page" ref={reportRef}>
             <header className="result-header glass-effect">
                 <div className="result-header-inner">
                     <div className="result-brand">
@@ -192,14 +215,14 @@ const ResultPage: React.FC = () => {
                     <div className="result-footer-left">
                         <div className="result-footer-brandline">
                             <span className="material-symbols-outlined result-footer-icon">auto_awesome</span>
-                            <p className="result-footer-version">인사이트 리포트 엔진 버전 2.4</p>
+                            <p className="result-footer-version">gemini-2.5-flash</p>
                         </div>
                         <p className="result-footer-desc">본 리포트는 인공지능 분석을 통해 생성되었습니다. 정보의 정확성을 위해 실제 공고와 대조를 권장합니다.</p>
                     </div>
-                    <div className="result-footer-actions">
+                    {/*<div className="result-footer-actions">
                         <button className="result-footer-link">이용약관</button>
                         <button className="result-footer-link">시스템 피드백</button>
-                    </div>
+                    </div>*/}
                 </div>
             </footer>
         </div>

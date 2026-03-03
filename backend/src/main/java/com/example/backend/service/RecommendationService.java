@@ -1,6 +1,7 @@
 package com.example.backend.service;
 
 import dev.langchain4j.model.chat.ChatModel;
+import dev.langchain4j.model.googleai.GoogleAiGeminiChatModel;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -13,25 +14,41 @@ public class RecommendationService {
     private final ChatModel chatModel;
     private final boolean llmEnabled;
     private final String chatApiKey;
+    private final String modelName;
 
     public RecommendationService(ResumeService resumeService,
             WebScraperService webScraperService,
             ObjectProvider<ChatModel> chatModelProvider,
             @Value("${app.llm.enabled:true}") boolean llmEnabled,
-            @Value("${langchain4j.google-ai-gemini.chat-model.api-key:}") String chatApiKey) {
+            @Value("${langchain4j.google-ai-gemini.chat-model.api-key:}") String chatApiKey,
+            @Value("${langchain4j.google-ai-gemini.chat-model.model-name:gemini-1.5-flash}") String modelName) {
         this.resumeService = resumeService;
         this.webScraperService = webScraperService;
         this.chatModel = chatModelProvider.getIfAvailable();
         this.llmEnabled = llmEnabled;
         this.chatApiKey = chatApiKey == null ? "" : chatApiKey.trim();
+        this.modelName = modelName;
     }
 
     /**
      * 이력서와 웹 URL의 공고를 비교하여 분석 결과를 반환합니다.
      */
-    public String analyzeMatch(String resumeText, String jobUrl) {
+    public String analyzeMatch(String resumeText, String jobUrl, String userApiKey) {
         // 1. URL에서 공고 내용 추출
         String jobDescription = webScraperService.scrapeJobPosting(jobUrl);
+
+        // 2. 사용자가 입력한 API 키가 있으면 해당 키로 모델 생성, 없으면 기본 모델 사용
+        ChatModel modelToUse = chatModel;
+        if (userApiKey != null && !userApiKey.trim().isEmpty()) {
+            try {
+                modelToUse = GoogleAiGeminiChatModel.builder()
+                        .apiKey(userApiKey.trim())
+                        .modelName(modelName)
+                        .build();
+            } catch (Exception e) {
+                return "{\"error\": \"사용자 API 키를 이용한 모델 생성에 실패했습니다: " + e.getMessage() + "\"}";
+            }
+        }
 
         // 2. LLM을 이용한 분석 및 추천 메시지 생성
         String prompt = String.format(
@@ -61,12 +78,16 @@ public class RecommendationService {
                 jobUrl,
                 jobDescription);
 
-        if (!llmEnabled || chatApiKey.isEmpty() || chatModel == null) {
+        if (!llmEnabled || (modelToUse == null && chatApiKey.isEmpty())) {
             return "{\"error\": \"LLM is disabled or API key is missing.\"}";
         }
 
+        if (modelToUse == null) {
+            return "{\"error\": \"ChatModel is not available.\"}";
+        }
+
         try {
-            String response = chatModel.chat(prompt);
+            String response = modelToUse.chat(prompt);
             if (response.contains("```json")) {
                 response = response.substring(response.indexOf("```json") + 7);
                 response = response.substring(0, response.lastIndexOf("```"));
@@ -76,7 +97,15 @@ public class RecommendationService {
             }
             return response.trim();
         } catch (RuntimeException e) {
-            return "{\"error\": \"LLM request failed: " + e.getMessage() + "\"}";
+            String cleanMessage = e.getMessage()
+                    .replace("\\", "\\\\")
+                    .replace("\"", "\\\"")
+                    .replace("\b", "\\b")
+                    .replace("\f", "\\f")
+                    .replace("\n", "\\n")
+                    .replace("\r", "\\r")
+                    .replace("\t", "\\t");
+            return "{\"error\": \"LLM request failed: " + cleanMessage + "\"}";
         }
     }
 }

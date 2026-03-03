@@ -42,7 +42,7 @@
     }
 
     .analyze-form-grid {
-        @apply mb-12 grid w-full max-w-5xl gap-8 md:grid-cols-2;
+        @apply mb-12 grid w-full max-w-5xl gap-8 md:grid-cols-2 lg:grid-cols-3;
     }
 
     .analyze-card {
@@ -162,7 +162,7 @@
     }
 
     .analyze-steps-grid {
-        @apply grid grid-cols-3 gap-4;
+        @apply grid grid-cols-4 gap-4;
     }
 
     .step-item {
@@ -201,5 +201,3 @@
         @apply text-[11px] font-bold text-slate-500 transition-colors hover:text-primary;
     }
 }
-
-

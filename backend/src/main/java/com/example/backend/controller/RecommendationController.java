@@ -29,13 +29,14 @@ public class RecommendationController {
     @PostMapping("/analyze")
     public ResponseEntity<String> analyzeMatch(
             @RequestParam("file") MultipartFile file,
-            @RequestParam("url") String url) {
+            @RequestParam("url") String url,
+            @RequestParam(value = "apiKey", required = false) String apiKey) {
 
         // 1. 이력서에서 텍스트 추출
         String resumeText = resumeService.extractTextFromPdf(file);
 
         // 2. URL 공고와 비교 분석
-        String analysisResult = recommendationService.analyzeMatch(resumeText, url);
+        String analysisResult = recommendationService.analyzeMatch(resumeText, url, apiKey);
 
         return ResponseEntity.ok(analysisResult);
     }
