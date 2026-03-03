@@ -1,6 +1,9 @@
 spring:
   config:
     import: "optional:file:.env[.properties]"
+  autoconfigure:
+    exclude:
+      - dev.langchain4j.googleaigemini.spring.AutoConfig
   datasource:
     url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/rag}
     username: ${DATABASE_USERNAME:rag}
@@ -22,9 +25,9 @@ app:
 langchain4j:
   google-ai-gemini:
     chat-model:
-      api-key: ${GEMINI_AI_KEY:}
+      api-key: ${GEMINI_AI_KEY:dummy}
       model-name: ${GEMINI_CHAT_MODEL:gemini-2.5-flash}
     embedding-model:
-      api-key: ${GEMINI_AI_KEY:}
+      api-key: ${GEMINI_AI_KEY:dummy}
       model-name: ${GEMINI_EMBEDDING_MODEL:text-embedding-004}
       output-dimensionality: 1536

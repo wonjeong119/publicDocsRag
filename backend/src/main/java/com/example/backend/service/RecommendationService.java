@@ -2,7 +2,6 @@ package com.example.backend.service;
 
 import dev.langchain4j.model.chat.ChatModel;
 import dev.langchain4j.model.googleai.GoogleAiGeminiChatModel;
-import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -11,22 +10,16 @@ public class RecommendationService {
 
     private final ResumeService resumeService;
     private final WebScraperService webScraperService;
-    private final ChatModel chatModel;
     private final boolean llmEnabled;
-    private final String chatApiKey;
     private final String modelName;
 
     public RecommendationService(ResumeService resumeService,
             WebScraperService webScraperService,
-            ObjectProvider<ChatModel> chatModelProvider,
             @Value("${app.llm.enabled:true}") boolean llmEnabled,
-            @Value("${langchain4j.google-ai-gemini.chat-model.api-key:}") String chatApiKey,
-            @Value("${langchain4j.google-ai-gemini.chat-model.model-name:gemini-1.5-flash}") String modelName) {
+            @Value("${langchain4j.google-ai-gemini.chat-model.model-name:gemini-2.5-flash}") String modelName) {
         this.resumeService = resumeService;
         this.webScraperService = webScraperService;
-        this.chatModel = chatModelProvider.getIfAvailable();
         this.llmEnabled = llmEnabled;
-        this.chatApiKey = chatApiKey == null ? "" : chatApiKey.trim();
         this.modelName = modelName;
     }
 
@@ -37,17 +30,19 @@ public class RecommendationService {
         // 1. URL에서 공고 내용 추출
         String jobDescription = webScraperService.scrapeJobPosting(jobUrl);
 
-        // 2. 사용자가 입력한 API 키가 있으면 해당 키로 모델 생성, 없으면 기본 모델 사용
-        ChatModel modelToUse = chatModel;
-        if (userApiKey != null && !userApiKey.trim().isEmpty()) {
-            try {
-                modelToUse = GoogleAiGeminiChatModel.builder()
-                        .apiKey(userApiKey.trim())
-                        .modelName(modelName)
-                        .build();
-            } catch (Exception e) {
-                return "{\"error\": \"사용자 API 키를 이용한 모델 생성에 실패했습니다: " + e.getMessage() + "\"}";
-            }
+        // 2. 사용자가 입력한 API 키로 모델 생성
+        if (userApiKey == null || userApiKey.trim().isEmpty()) {
+            return "{\"error\": \"API 키가 필요합니다. Gemini API 키를 입력해 주세요.\"}";
+        }
+
+        ChatModel modelToUse;
+        try {
+            modelToUse = GoogleAiGeminiChatModel.builder()
+                    .apiKey(userApiKey.trim())
+                    .modelName(modelName)
+                    .build();
+        } catch (Exception e) {
+            return "{\"error\": \"사용자 API 키를 이용한 모델 생성에 실패했습니다: " + e.getMessage() + "\"}";
         }
 
         // 2. LLM을 이용한 분석 및 추천 메시지 생성
@@ -78,12 +73,8 @@ public class RecommendationService {
                 jobUrl,
                 jobDescription);
 
-        if (!llmEnabled || (modelToUse == null && chatApiKey.isEmpty())) {
-            return "{\"error\": \"LLM is disabled or API key is missing.\"}";
-        }
-
-        if (modelToUse == null) {
-            return "{\"error\": \"ChatModel is not available.\"}";
+        if (!llmEnabled) {
+            return "{\"error\": \"LLM 기능이 비활성화되어 있습니다.\"}";
         }
 
         try {
