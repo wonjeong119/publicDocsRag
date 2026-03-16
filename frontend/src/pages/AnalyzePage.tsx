@@ -281,7 +281,7 @@ const AnalyzePage: React.FC = () => {
                                 <strong>AI 버전: gemini-2.5-flash</strong><br />
                                 분석을 위해 API 키 입력이 반드시 필요합니다.
                                 입력하신 키는 서버에 저장되지 않으며 일회성 분석용으로만 사용됩니다.<br />
-                                <a href="https://aistudio.google.com/api-keys?hl=ko&project=gen-lang-client-0174656966" target="_blank" rel="noopener noreferrer">
+                                <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener noreferrer">
                                     👉 API 키 발급받기 (Google AI Studio)
                                 </a>
                             </p>
