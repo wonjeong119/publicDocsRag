@@ -5,9 +5,9 @@ spring:
     exclude:
       - dev.langchain4j.googleaigemini.spring.AutoConfig
   datasource:
-    url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/rag}
-    username: ${DATABASE_USERNAME:rag}
-    password: ${DATABASE_PASSWORD:rag}
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/rag}
+    username: ${SPRING_DATASOURCE_USERNAME:rag}
+    password: ${SPRING_DATASOURCE_PASSWORD:rag}
   jpa:
     hibernate:
       ddl-auto: update
