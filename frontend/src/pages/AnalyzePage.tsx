@@ -333,6 +333,20 @@ const AnalyzePage: React.FC = () => {
                     </div>*/}
                 </div>
             </footer>
+
+            {/* 분석 진행 중 모달 */}
+            {isSubmitting && (
+                <div className="analyze-modal-overlay">
+                    <div className="analyze-modal">
+                        <div className="analyze-modal-spinner" />
+                        <p className="analyze-modal-title">AI가 분석 중입니다</p>
+                        <p className="analyze-modal-desc">
+                            이력서와 채용 공고를 비교 분석하고 있습니다.<br />
+                            약 1분 정도 소요될 수 있으니 잠시만 기다려 주세요.
+                        </p>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
